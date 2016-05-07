@@ -15,6 +15,10 @@ class aghContainer{
 	virtual void append(T const& dodawanyElement){}
 	//virtual void resize(){}
 	//virtual void wypisz(){}
+	aghContainer<T>& operator<<(T const& element){}
+	aghContainer<T>& operator<<(aghContainer<T> const& right){}
+	bool insert(int place, T const& element){}
+	int size() const{}
 };
 
 template <class T>
@@ -101,6 +105,16 @@ public:
 		tab=tmpTab->tab;// nie jestem przekoknana
 	}
 
+    bool insert(int place, T const& element)
+    {
+        if ((place > 0) && (place <= rozmiar))
+        {
+            if (tab[place] == 0) return true;
+            else return false;
+        }
+        else return false;
+    }
+
 	void append(T const& dodawanyElement)
 	{
 		if(ifNeedResize())
@@ -132,6 +146,30 @@ public:
             os << wektor.tab[i] << ", ";
         os << endl;
         return os;
+    }
+
+    aghContainer<T>& operator<<(T const& element)
+    {
+        append(element);
+        return *this;
+    }
+
+    aghContainer<T>& operator<<(aghContainer<T> const& right)
+    {
+        int tmpRozmiar = 0;
+        if (rozmiar<=right.rozmiar)
+        {
+            int tmpRozmiar = right.rozmiar - rozmiar;
+        }
+        else
+        {
+            int tmpRozmiar = rozmiar - right.rozmiar;
+        }
+
+        for (int i = 0; i < tmpRozmiar; i++)
+            append(right.tab[i]);
+
+        return *this;
     }
 
 };
