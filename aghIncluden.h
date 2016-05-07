@@ -7,19 +7,32 @@ using namespace std;
 template <class T>
 class aghContainer{
 	public:
-	//aghContainer()
 	//{
 		//aghContainer <T>;
 	//}
 	//virtual void wypisz() = 0;
-	virtual void append(T const& dodawanyElement){}
+	virtual void append(T const& dodawanyElement) = 0;
+	virtual ~aghContainer()
+	{
+	    cout << "wirtualny destruktor" << endl;
+	}
 	//virtual void resize(){}
 	//virtual void wypisz(){}
 	aghContainer<T>& operator<<(T const& element){}
 	aghContainer<T>& operator<<(aghContainer<T> const& right){}
 	bool insert(int place, T const& element){}
+	bool replace(int place, T const& element){}
 	int size() const{}
+	aghContainer& operator= (aghContainer const & w){}
     T& at(int place) const{}
+    bool remove(int place){}
+    void clear(void){}
+    bool isEmpty(void){}
+    int indexOf(T const& _value, int _from = 0) const{}
+    bool contains(T const& _value, int _from = 0) const{}
+    bool operator==(aghContainer<T> const& right){}
+    bool operator!=(aghContainer<T> const& right){}
+    T& operator[](int n) const{}
 };
 
 template <class T>
@@ -27,12 +40,13 @@ class aghVector:public aghContainer<T>{
 public:
 	T *tab;
 	int rozmiar;
-	int ostWolny; //najmniejszy numer indeksu tablicy z wolnym polem
+    int OstWolny;
+
 	aghVector()
 	{
 		rozmiar = 1;
 		tab = new T [rozmiar];
-		ostWolny=0;
+		OstWolny = 0;
 	}
 
 	aghVector(int _rozmiar)
@@ -41,37 +55,34 @@ public:
 		{
 			rozmiar = _rozmiar;
 			tab = new T [rozmiar];
-			ostWolny=0;
+			OstWolny = 0;
 		}
 	}
 
-	/*void wypisz()
-	{
-		for (int i =0 ; i< ostWolny; i++)
-			cout << tab[i] << ", ";
-		cout << endl;
-	}*/
+    aghVector(const aghVector& kopia )
+    {
+        kopia.rozmiar=rozmiar;
+        kopia.OstWolny = OstWolny;
+        kopia.tab = new T [kopia.rozmiar];
+        for (int i = 0 ; i < kopia.rozmiar; i++)
+            kopia[i]=tab[i];
+    }
+
+    void clear(void*)
+    {
+        delete [] tab;
+        rozmiar = 0;
+        OstWolny = 0;
+    }
 
 	~aghVector()
 	{
 		delete [] tab;
-		rozmiar = 0;
-		ostWolny = 0;
+        rozmiar = 0;
+        OstWolny = 0;
 	}
 
-	bool  ifNeedResize()
-	{
-		if (ostWolny>=rozmiar)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	aghVector& operator= (aghVector const & w)
+	aghContainer<T>& operator= (aghContainer<T> const & w)
 	{
 	    if (this == &w)
 				    return *this;
@@ -81,9 +92,8 @@ public:
             {
                  delete [] tab;
             }
-            rozmiar=w.rozmiar;
-            ostWolny=w.ostWolny;
-
+            rozmiar = w.rozmiar;
+            OstWolny = w.OstWolny;
             tab = new T [rozmiar];
             for (int i = 0 ; i < rozmiar; i++)
                 tab[i] = w.tab[i];
@@ -93,56 +103,68 @@ public:
 
 	void resize(int tmpSize)
 	{
-		rozmiar = tmpSize;
-		//T* tmpTab=new T [rozmiar];
 		aghVector<T> *tmpTab = new aghVector<T>(rozmiar);
-		tmpTab -> ostWolny=ostWolny;
-		for (int i=0;i<rozmiar;i++)
+		for (int i=0;i<rozmiar--;i++)
 		{
 			tmpTab -> tab[i]=tab[i];
 		}
 		delete [] tab;
 
-		tab=tmpTab->tab;// nie jestem przekoknana
+        rozmiar = tmpSize;
+        tab = new T [rozmiar];
+        for (int i = 0; i < rozmiar; i++)
+            tab[i] = tmpTab -> tab[i];
 	}
 
     bool insert(int place, T const& element)
     {
-        if ((place > 0) && (place <= rozmiar))
+        if ((place >= 0) && (place <= rozmiar))
         {
-            if (tab[place] == 0)
+            rozmiar++;
+            resize(rozmiar);
+            aghVector<T> *tmpTab = new aghVector<T>(rozmiar);
+            for (int i = 0 ; i < rozmiar; i++)
+                tmpTab -> tab[i] = tab[i];
+
+            for (int i = rozmiar; i > place; i--)
             {
-                tab[place] = element;
-                return true;
+                tab[i] = tab [i-1];
             }
-            else return false;
+            tab[place] = element;
+            return true;
+        }
+        else return false;
+    }
+
+    bool replace(int place, T const& element)
+    {
+        if ((place >= 0) && (place <= rozmiar))
+        {
+            tab[place] = element;
+            return true;
         }
         else return false;
     }
 
 	void append(T const& dodawanyElement)
 	{
-		if(ifNeedResize())
-		{
-			resize(rozmiar++);
-		}
-		tab[ostWolny++]=dodawanyElement;
+	    if (OstWolny <= rozmiar)
+        {
+            tab[OstWolny] = dodawanyElement;
+            OstWolny++;
+        }
+        else
+        {
+            resize(rozmiar++);
+            tab[OstWolny] = dodawanyElement;
+            OstWolny++;
+        }
 		cout << "dodano element" << endl;
-	}
-
-	bool remove(int x) // powinno przepsac tablice??
-	{
-		if (x<=rozmiar) //a co jak zarz¹da usuniecia ujemengo elementu??
-		{
-			//usun element z miejsca x
-			return true;
-		}
-		else return false;
 	}
 
 	int size() const
 	{
-		return rozmiar+1;
+		return rozmiar;
 	}
 
     friend ostream& operator << (ostream & os, aghVector & wektor)
@@ -179,7 +201,7 @@ public:
 
     T& at(int place) const
     {
-        if ((place > 0) && (place <= rozmiar))
+        if ((place >= 0) && (place <= rozmiar))
         {
             return tab[place];
         }
@@ -187,6 +209,99 @@ public:
         {
             cout << "wywal wyjatek o blednym zasiegu";
         }
+    }
+
+    bool remove(int place)
+    {
+         if ((place >= 0) && (place <= rozmiar))
+         {
+             rozmiar--;
+             resize(rozmiar);
+             aghVector<T> *tmpTab = new aghVector<T>(rozmiar);
+             for (int i = 0 ; i < rozmiar; i++)
+                 tmpTab -> tab[i] = tab[i];
+
+             for (int i = place; i < rozmiar; i++)
+             {
+                 tab[i] = tab [i+1];
+             }
+             return true;
+         }
+         else return false;
+    }
+
+    bool isEmpty(void*)
+    {
+            if (rozmiar  == 0)
+                return true;
+            else return false;
+    }
+
+    int indexOf(T const& _value, int _from = 0) const
+    {
+        for (int i = _from; i < rozmiar; i++)
+        {
+            if (tab[i] == _value)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    bool contains(T const& _value, int _from = 0) const
+    {
+        for (int i = _from; i < rozmiar; i++)
+        {
+            if (tab[i] == _value)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool operator==(aghContainer<T> const& right)
+    {
+        int RepeatElements = 0;
+        if (rozmiar >= right.rozmiar)
+        {
+            for (int i = 0; i < rozmiar; i++)
+            {
+                if (tab[i] == right.tab[i])
+                    RepeatElements++;
+            }
+            if (RepeatElements == rozmiar)
+                return true;
+            else return false;
+        }
+        else
+        {
+            for (int i = 0; i < right.rozmiar; i++)
+            {
+                if (tab[i] == right.tab[i])
+                    RepeatElements++;
+            }
+            if (RepeatElements == right.rozmiar)
+                return true;
+            else return false;
+        }
+    }
+
+    bool operator!=(aghContainer<T> const& right)
+    {
+        return false;
+        //analogicznie jw jesli jest dobrze
+    }
+
+    T& operator[](int n) const
+    {
+        if ((n >= 0) && (n <= rozmiar))
+        {
+            return tab[n];
+        }
+        else cout << "Wyrzuc wyjatek , dopisac" << endl;
+
     }
 
 };
