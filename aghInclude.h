@@ -19,6 +19,7 @@ class aghContainer{
 	aghContainer<T>& operator<<(aghContainer<T> const& right){}
 	bool insert(int place, T const& element){}
 	int size() const{}
+    T& at(int place) const{}
 };
 
 template <class T>
@@ -109,7 +110,11 @@ public:
     {
         if ((place > 0) && (place <= rozmiar))
         {
-            if (tab[place] == 0) return true;
+            if (tab[place] == 0)
+            {
+                tab[place] = element;
+                return true;
+            }
             else return false;
         }
         else return false;
@@ -137,7 +142,7 @@ public:
 
 	int size() const
 	{
-		return rozmiar;
+		return rozmiar+1;
 	}
 
     friend ostream& operator << (ostream & os, aghVector & wektor)
@@ -170,6 +175,18 @@ public:
             append(right.tab[i]);
 
         return *this;
+    }
+
+    T& at(int place) const
+    {
+        if ((place > 0) && (place <= rozmiar))
+        {
+            return tab[place];
+        }
+        else
+        {
+            cout << "wywal wyjatek o blednym zasiegu";
+        }
     }
 
 };
