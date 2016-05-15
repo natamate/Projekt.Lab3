@@ -1,3 +1,9 @@
+// File: aghInclude.h
+// Author: Natalia Materek, Aleksander Lisiecki
+// v 2.1 15.05.2016
+// Plik zawiera deklaracje szablonu klasy aghVector
+// wraz z implementacja metod klasy
+
 #ifndef AGHINCLUDE_H
 #define AGHINCLUDE_H
 #include "aghException.h"
@@ -10,9 +16,9 @@ class aghVector:public aghContainer<T>{
 public:
 	T *tab;
 	int rozmiar;
-    int OstWolny; //to zmienna przechowujaca indeks miejsca gdzie moze zostac wlozony kolejny element, wykorzystywana m. in w metodzie append
+    int OstWolny; //to zmienna przechowujaca indeks miejsca gdzie moze zostac wstawiony kolejny element, wykorzystywana m. in w metodzie append
 
-	aghVector()
+	aghVector() //ten konstruktor przyjmuje wartosc 1 zeby pominac resize przy dodawaniu pierwszego elementu
 	{
 		rozmiar = 1;
 		tab = new T [rozmiar];
@@ -85,6 +91,7 @@ public:
         clear();
 	}
 
+    //funkcja przepisuje zawartosc tablicy source do tablicy destination
     void przepisywanieTab(T* source, T* destination, int lEl)
     {
          for (int i = 0; i < lEl; i++)
@@ -308,3 +315,7 @@ public:
 };
 
 #endif
+
+
+
+
